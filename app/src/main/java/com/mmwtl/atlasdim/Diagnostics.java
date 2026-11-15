@@ -41,6 +41,10 @@ final class Diagnostics {
     }
 
     private static final String[][] STEPS = {
+            {"Cityray: ресурс Kanzi (метаданные, только чтение)",
+                    "for f in /apps/cluster/*/bin/hmi/*/ClusterHMI/resource.kzb; do "
+                    + "[ -f \"$f\" ] || continue; ls -l \"$f\"; wc -c < \"$f\"; "
+                    + "break; done"},
             {"Система QNX", "uname -a; ls -ld /tmp /shared 2>&1; ls /usr/lib/libscreen* 2>&1"},
             {"Дисплеи QNX Screen (/tmp/graphics.conf)",
                     "grep -v -E '^[[:space:]]*(#|$)' /tmp/graphics.conf 2>&1"},
