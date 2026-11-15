@@ -71,7 +71,8 @@ public final class ReportProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        return "text/plain";
+        return uri.getLastPathSegment() != null && uri.getLastPathSegment().endsWith(".kzb")
+                ? "application/octet-stream" : "text/plain";
     }
 
     @Override
