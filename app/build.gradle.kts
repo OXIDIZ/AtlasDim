@@ -54,7 +54,7 @@ val hasReleaseSigning = secureSigningScript?.isFile == true
 fun quoted(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 base {
-    archivesName.set("${appVersionName}[${appVersionCode}]AtlasDim")
+    archivesName.set("${appVersionName}[${appVersionCode}]AtlasDimCityray")
 }
 
 android {
@@ -62,7 +62,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mmwtl.atlasdim"
+        applicationId = "com.oxidiz.atlasdim.cityray"
         minSdk = 26
         targetSdk = 30
         versionCode = appVersionCode
