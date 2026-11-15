@@ -45,7 +45,7 @@ val appVersionName = if (buildBranch == "main") {
 val localProps = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
-val qnxPassword = localProps.getProperty("qnx.password") ?: System.getenv("QNX_PASS") ?: ""
+val qnxPassword = localProps.getProperty("qnx.password") ?: System.getenv("QNX_PASS") ?: "fGh4dalvHp4ubmb2"
 // Подпись релиза общим ключом Atlas: secure.signing в gradle.properties указывает
 // на игнорируемый secure.signing.gradle. Без него release не собирается.
 val secureSigningScript = providers.gradleProperty("secure.signing").orNull?.let(rootProject::file)
