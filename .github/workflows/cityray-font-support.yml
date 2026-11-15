@@ -1,0 +1,28 @@
+name: AtlasDim Cityray support build
+on:
+  push:
+    branches: [feature/cityray-font-support]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Build debug APK
+        env:
+          GIT_BRANCH: feature/cityray-font-support
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AtlasDim-Cityray-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
