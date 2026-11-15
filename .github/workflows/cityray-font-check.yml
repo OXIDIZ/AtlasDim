@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      QNX_PASS: ""
       GIT_BRANCH: feature/cityray-font-path-diagnostics
     steps:
       - name: Checkout source
