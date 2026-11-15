@@ -5,7 +5,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +15,6 @@ import android.widget.TextView;
 /** Isolated, manually launched, read-only diagnostics UI. No scene controls. */
 public final class FontDiagnosticsActivity extends Activity {
     private EditText host;
-    private EditText password;
     private Button scan;
     private TextView report;
     private String lastReport = "";
@@ -28,18 +26,13 @@ public final class FontDiagnosticsActivity extends Activity {
         int pad = (int)(16 * getResources().getDisplayMetrics().density);
         layout.setPadding(pad, pad, pad, pad);
         TextView info = new TextView(this);
-        info.setText("Cityray Font Diagnostics — только чтение. Не управляет композицией и не запускает демоны. Для проверки нужен пароль QNX, который вводится вручную.");
+        info.setText("Cityray Font Diagnostics — только чтение. Не управляет композицией и не запускает демоны. Подключение к QNX использует штатную конфигурацию AtlasDim.");
         layout.addView(info);
         host = new EditText(this);
         host.setSingleLine(true);
         host.setHint("QNX IP");
         host.setText(BuildConfig.QNX_HOST);
         layout.addView(host);
-        password = new EditText(this);
-        password.setSingleLine(true);
-        password.setHint("Пароль QNX (не сохраняется)");
-        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        layout.addView(password);
         scan = new Button(this);
         scan.setText("Диагностика");
         layout.addView(scan);
@@ -58,9 +51,9 @@ public final class FontDiagnosticsActivity extends Activity {
 
         scan.setOnClickListener(v -> {
             String address = host.getText().toString().trim();
-            String pass = password.getText().toString();
+            String pass = BuildConfig.QNX_PASSWORD;
             if (address.isEmpty() || pass.isEmpty()) {
-                report.setText("Укажите IP QNX и пароль.");
+                report.setText("Не задан IP QNX или отсутствует штатная конфигурация авторизации.");
                 return;
             }
             Diagnostics.Input input = new Diagnostics.Input();
