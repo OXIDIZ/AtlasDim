@@ -40,7 +40,18 @@ final class Diagnostics {
         SceneConfig config;
     }
 
+    // Cityray: only file metadata in known Kanzi HMI directories.
+    // No recursive traversal, no file reads, no writes, no process control.
+    // The glob is expanded by the QNX shell; missing paths are reported as missing.
+    private static final String FONT_PATH_PROBE =
+            "ls -ld /apps/cluster /apps/cluster/*/bin/hmi "
+            + "/apps/cluster/*/bin/hmi/*/ClusterHMI "
+            + "/apps/cluster/*/bin/hmi/*/ClusterHMI/*.kzb "
+            + "/apps/cluster/*/bin/hmi/*/ClusterHMI/*.ttf "
+            + "/apps/cluster/*/bin/hmi/*/ClusterHMI/*.otf 2>&1";
+
     private static final String[][] STEPS = {
+            {"Cityray: пути ресурсов и шрифтов (только метаданные)", FONT_PATH_PROBE},
             {"Система QNX", "uname -a; ls -ld /tmp /shared 2>&1; ls /usr/lib/libscreen* 2>&1"},
             {"Дисплеи QNX Screen (/tmp/graphics.conf)",
                     "grep -v -E '^[[:space:]]*(#|$)' /tmp/graphics.conf 2>&1"},
@@ -139,11 +150,11 @@ final class Diagnostics {
                     out = "ошибка: " + e.getMessage();
                 }
                 body.append(out.isEmpty() ? "(пусто)"
-                        : limit(out, step == STEPS[2] ? MAX_WINDOW_LINES : MAX_LINES))
+                        : limit(out, step[0].equals("Окна QNX Screen") ? MAX_WINDOW_LINES : MAX_LINES))
                         .append('\n');
-                if (step == STEPS[1]) {
+                if (step == STEPS[2]) {
                     graphics = out;
-                } else if (step == STEPS[2]) {
+                } else if (step == STEPS[4]) {
                     screen = out;
                 } else if (step == STEPS[3]) {
                     pidin = out;
