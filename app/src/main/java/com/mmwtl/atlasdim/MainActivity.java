@@ -92,6 +92,7 @@ public final class MainActivity extends ScaledActivity {
     private TextView sensorSource;
     private TextView backgroundLocked;
     private Button diagButton;
+    private Button exportKzbButton;
     private TextView diagStatus;
     private LayerEditor clock;
     private LayerEditor fuel;
@@ -471,6 +472,10 @@ public final class MainActivity extends ScaledActivity {
         diagStatus = hint("");
         diagStatus.setVisibility(View.GONE);
         diag.addView(diagStatus);
+        exportKzbButton = Ui.button(this, "Экспорт resource.kzb");
+        Ui.topMargin(exportKzbButton, 12);
+        exportKzbButton.setOnClickListener(v -> confirmKzbExport());
+        diag.addView(exportKzbButton);
 
         LinearLayout limits = card(page, R.string.limits_title);
         unrestricted = toggle(limits, R.string.limits_off, prefs.getBoolean(KEY_UNRESTRICTED, false));
@@ -528,6 +533,53 @@ public final class MainActivity extends ScaledActivity {
     private void setExpanded(TextView head, View body, String title, boolean expanded) {
         head.setText(getString(R.string.link_manual_toggle, expanded ? "▾" : "▸", title));
         body.setVisibility(expanded ? View.VISIBLE : View.GONE);
+    }
+
+    private void confirmKzbExport() {
+        new AlertDialog.Builder(this)
+                .setTitle("Экспорт Kanzi resource.kzb")
+                .setMessage("Скопировать ресурс приборки (~58 МиБ) через общую NFS-папку? "
+                        + "Исходный файл QNX не изменяется. Выполнять только при "
+                        + "неподвижном автомобиле и после проверки доступа к шаре.")
+                .setNegativeButton("Отмена", null)
+                .setPositiveButton("Экспорт", (dialog, which) -> runKzbExport())
+                .show();
+    }
+
+    private void runKzbExport() {
+        String targetHost = host.getText().toString().trim();
+        if (targetHost.isEmpty()) targetHost = BuildConfig.QNX_HOST;
+        String typed = password.getText().toString();
+        String targetPassword = typed.isEmpty() ? BuildConfig.QNX_PASSWORD : typed;
+        exportKzbButton.setEnabled(false);
+        diagStatus.setVisibility(View.VISIBLE);
+        diagStatus.setText("Проверяю NFS-шару…");
+        final String finalHost = targetHost;
+        new Thread(() -> {
+            try {
+                File file = KzbExport.export(this, finalHost, targetPassword,
+                        message -> runOnUiThread(() -> diagStatus.setText(message)));
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    exportKzbButton.setEnabled(true);
+                    diagStatus.setText("KZB сохранён: " + file.getAbsolutePath());
+                    Uri uri = ReportProvider.uri(file);
+                    Intent send = new Intent(Intent.ACTION_SEND)
+                            .setType("application/octet-stream")
+                            .putExtra(Intent.EXTRA_STREAM, uri)
+                            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    send.setClipData(ClipData.newRawUri(file.getName(), uri));
+                    startActivity(Intent.createChooser(send, "Поделиться KZB"));
+                });
+            } catch (Exception error) {
+                Log.e("AtlasDim", "KZB export failed", error);
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    exportKzbButton.setEnabled(true);
+                    diagStatus.setText("Экспорт KZB: " + error.getMessage());
+                });
+            }
+        }, "AtlasDim-kzb-export").start();
     }
 
     /** Диагностика в фоне: связь с QNX и состояние приборки, только чтение. */
