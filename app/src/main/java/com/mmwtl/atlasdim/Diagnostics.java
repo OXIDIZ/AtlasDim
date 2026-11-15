@@ -154,9 +154,9 @@ final class Diagnostics {
                         .append('\n');
                 if (step == STEPS[2]) {
                     graphics = out;
-                } else if (step == STEPS[4]) {
-                    screen = out;
                 } else if (step == STEPS[3]) {
+                    screen = out;
+                } else if (step == STEPS[4]) {
                     pidin = out;
                 }
             }
