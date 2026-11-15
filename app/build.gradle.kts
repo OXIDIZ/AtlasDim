@@ -62,7 +62,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mmwtl.atlasdim"
+        applicationId = "com.oxidiz.atlasdim.cityrayfonts"
         minSdk = 26
         targetSdk = 30
         versionCode = appVersionCode
