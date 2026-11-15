@@ -110,7 +110,26 @@ final class ClusterFont {
             return;
         }
         Face face = face(font);
-        // Verify the container size before reading hard-coded FX11_J1 offsets.\n        // Cityray G426_J1 uses a smaller resource.kzb; these offsets are not portable.\n        QnxShell.Result sizeResult = qnx.exec("for f in " + KZB\n                + "; do wc -c < \"$f\"; break; done");\n        long containerSize;\n        try {\n            java.util.regex.Matcher sizeMatcher = java.util.regex.Pattern\n                    .compile("(?m)^\\\\s*(\\\\d+)\\\\s*$").matcher(sizeResult.output);\n            if (!sizeMatcher.find()) {\n                throw new NumberFormatException("no numeric size in QNX output");\n            }\n            containerSize = Long.parseLong(sizeMatcher.group(1));\n        } catch (NumberFormatException e) {\n            throw new IOException("не удалось определить размер resource.kzb", e);\n        }\n        if (containerSize < face.offset + face.size) {\n            throw new IOException("resource.kzb этой приборки не соответствует известным смещениям " + face.file\n                    + "; нужен анализ ресурсов Cityray");\n        }\n        QnxShell.Result r = qnx.exec("for f in " + KZB + "; do dd if=$f bs=8 skip="
+        // Verify the container size before reading hard-coded FX11_J1 offsets.
+        // Cityray G426_J1 uses a smaller resource.kzb; these offsets are not portable.
+        QnxShell.Result sizeResult = qnx.exec("for f in " + KZB
+                + "; do wc -c < \"$f\"; break; done");
+        long containerSize;
+        try {
+            java.util.regex.Matcher sizeMatcher = java.util.regex.Pattern
+                    .compile("(?m)^\\s*(\\d+)\\s*$").matcher(sizeResult.output);
+            if (!sizeMatcher.find()) {
+                throw new NumberFormatException("no numeric size in QNX output");
+            }
+            containerSize = Long.parseLong(sizeMatcher.group(1));
+        } catch (NumberFormatException e) {
+            throw new IOException("не удалось определить размер resource.kzb", e);
+        }
+        if (containerSize < face.offset + face.size) {
+            throw new IOException("resource.kzb этой приборки не соответствует известным смещениям " + face.file
+                    + "; нужен анализ ресурсов Cityray");
+        }
+        QnxShell.Result r = qnx.exec("for f in " + KZB + "; do dd if=$f bs=8 skip="
                 + face.offset / 8 + " count=" + face.size / 8
                 + " 2>/dev/null | openssl base64; break; done", FETCH_TIMEOUT_MS);
         byte[] data = Base64.decode(r.output.replaceAll("[^A-Za-z0-9+/=]", ""), Base64.DEFAULT);
