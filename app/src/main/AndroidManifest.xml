@@ -1,36 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- TCP до демона ghudbridgelited-dim на QNX (192.168.118.2:50210). -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Выбор картинки для фона из галереи устройства (MediaStore). -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <!-- Свои шрифты из «Загрузок»: на Android 11 не-медиафайлы других приложений
-         видны только с «Доступом ко всем файлам», а выбора файлов на OneOS нет. -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <!-- Композиция держится сервисом в фоне и возвращается после загрузки ГУ. -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <!-- Топливо из GInputBridge (ГИБ), как в AtlasClimateWidget. -->
-    <queries>
-        <package android:name="com.salat.gbinder" />
-        <!-- Браузер для ссылки на поддержку; без него окно показывает только QR-код. -->
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="https" />
-        </intent>
-    </queries>
-
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="Cityray Font Diagnostics"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.AtlasDim">
-
         <activity
-            android:name=".MainActivity"
+            android:name=".FontDiagnosticsActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -38,18 +16,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name=".SceneService"
-            android:exported="false" />
-
-        <!-- Отчёты диагностики для «Поделиться»: только чтение по выданному разрешению. -->
-        <provider
-            android:name=".ReportProvider"
-            android:authorities="${applicationId}.reports"
-            android:exported="false"
-            android:grantUriPermissions="true" />
-
-        <!-- Diagnostic variant: no accessibility autostart or boot receiver. -->
     </application>
 </manifest>
