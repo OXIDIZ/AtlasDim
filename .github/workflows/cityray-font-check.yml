@@ -1,0 +1,43 @@
+name: Cityray font diagnostics — build check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feature/cityray-font-path-diagnostics]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      QNX_PASS: ""
+      GIT_BRANCH: feature/cityray-font-path-diagnostics
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build debug APK and lint
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon :app:assembleDebug :app:lintDebug
+      - name: Upload test APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atlasdim-cityray-font-diagnostics-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
